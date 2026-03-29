@@ -5,7 +5,7 @@ const cors = require("cors");
 const { Client } = require("@notionhq/client");
 
 // paste token here
-const NOTION_TOKEN = "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";
+const NOTION_TOKEN = "add_token_here";
 const READINGS_DB_ID = "31fe483094cf807cad59d57f2d8f1de4";
 
 //make website public 
