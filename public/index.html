@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Mystic Tarot</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { margin: 0; background: #f2c4d0; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: monospace; }
+    #screen-interior, #screen-reading { display: none; }
+    #screen-exterior { position: relative; display: inline-block; }
+    #screen-exterior img { width: 100vmin; max-width: 100vw; height: 100vh; object-fit: cover; image-rendering: pixelated; display: block; }
+    .enter-btn { position: absolute; bottom: 18px; right: 30px; background: #7dd4c8; border: 3px solid #fff; color: #fff; font-family: monospace; font-size: 13px; font-weight: bold; letter-spacing: 2px; padding: 10px 20px; cursor: pointer; box-shadow: 3px 3px 0px #5bb5a8; text-transform: uppercase; }
+    .enter-btn:hover { background: #5bb5a8; }
+    #screen-interior { position: relative; }
+    #screen-interior img { width: 100vmin; max-width: 100vw; height: 100vh; object-fit: cover; image-rendering: pixelated; display: block; }
+    .breath-box { position: absolute; top: 16px; right: 16px; background: #ff69b4; border: 3px solid #fff; color: #fff; font-family: monospace; font-size: 11px; line-height: 1.8; padding: 10px 14px; max-width: 200px; text-align: center; box-shadow: 3px 3px 0px #cc3d80; }
+    .reading-form { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px; width: 80%; }
+    .reading-form select { background: #2a1a4e; border: 2px solid #b89dff; color: #e8d5f0; padding: 8px 12px; font-family: monospace; font-size: 12px; cursor: pointer; appearance: none; text-align: center; width: auto; min-width: 200px; max-width: 320px; }
+    .reading-form button { background: #b89dff; border: 3px solid #fff; color: #fff; font-family: monospace; font-size: 13px; font-weight: bold; letter-spacing: 2px; padding: 10px 24px; cursor: pointer; box-shadow: 3px 3px 0px #8a6fd4; text-transform: uppercase; margin-top: 4px; }
+    .reading-form button:hover { background: #8a6fd4; }
+    .error { color: #ff9999; font-size: 11px; }
+    #screen-reading { position: relative; }
+    #screen-reading img.bg { width: 100vmin; max-width: 100vw; height: 100vh; object-fit: cover; image-rendering: pixelated; display: block; }
+    .reading-content { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; padding: 24px 30px; background: rgba(0,0,20,0.55); }
+    .reading-content h2 { color: #b8f0ff; font-size: 14px; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 4px; flex-shrink: 0; }
+    .reading-meta { color: #b89dff; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; flex-shrink: 0; }
+    .reading-box { width: 100%; max-width: 680px; flex: 1; overflow-y: auto; border: 1px solid rgba(184,240,255,0.3); padding: 20px; background: rgba(0,0,40,0.4); margin-bottom: 12px; }
+    .reading-box::-webkit-scrollbar { width: 4px; }
+    .reading-box::-webkit-scrollbar-thumb { background: #b89dff; }
+    .waiting-text { color: #b8f0ff; font-size: 13px; letter-spacing: 3px; animation: pulse 1.5s ease-in-out infinite; }
+    .cards-list { color: #e8d5f0; font-size: 12px; line-height: 2; margin-bottom: 16px; white-space: pre-wrap; border-bottom: 1px solid rgba(184,240,255,0.2); padding-bottom: 12px; }
+    .interpretation { color: #e8f4ff; font-size: 12px; line-height: 2; white-space: pre-wrap; }
+    .new-reading-btn { flex-shrink: 0; background: transparent; border: 2px solid #b8f0ff; color: #b8f0ff; font-family: monospace; font-size: 11px; letter-spacing: 3px; padding: 8px 20px; cursor: pointer; text-transform: uppercase; }
+    @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+  </style>
+</head>
+<body>
+
+  <!-- Screen 1: Landing page -->
+  <div id="screen-exterior">
+    <img src="tarot-shop.gif" alt="Tarot Shop"/>
+    <button class="enter-btn" onclick="enterShop()">✦ Enter if you dare ✦</button>
+  </div>
+
+  <!-- Screen 2: Cat screen -->
+  <div id="screen-interior">
+    <img src="1-interior.gif" alt="Witch Shop Interior"/>
+    <div class="breath-box">
+      Take a deep breath in… and release.<br/>
+      When your energy feels aligned, select a reading Category and Spread.
+    </div>
+    <div class="reading-form">
+      <select id="category">
+        <option value="">✦ Choose your focus ✦</option>
+        <option value="Career">Career</option>
+        <option value="School">School</option>
+        <option value="Relationship - Romantic">Relationship — Romantic</option>
+        <option value="Relationship - Friend">Relationship — Friend</option>
+        <option value="Relationship - Family">Relationship — Family</option>
+      </select>
+      <select id="spread">
+        <option value="">✦ Choose your spread ✦</option>
+        <option value="1-Card">1-Card (Single Pull)</option>
+        <option value="3-Card">3-Card (Past · Present · Future)</option>
+        <option value="Horseshoe">Horseshoe (7 Cards)</option>
+        <option value="Celtic Cross">Celtic Cross (10 Cards)</option>
+      </select>
+      <div id="form-error" class="error"></div>
+      <button onclick="startReading()">✦ The cards await you ✦</button>
+    </div>
+  </div>
+
+  <!-- Screen 3: Starry Night reading -->
+  <div id="screen-reading">
+    <img class="bg" src="starry-night.gif" alt="Starry Night"/>
+    <div class="reading-content">
+      <h2 id="reading-title">✦ Your Reading ✦</h2>
+      <div id="reading-meta" class="reading-meta"></div>
+      <div class="reading-box">
+        <div id="reading-status" class="waiting-text">The spirits are consulting the cards...</div>
+        <div id="cards-list" class="cards-list" style="display:none"></div>
+        <div id="interpretation" class="interpretation" style="display:none"></div>
+      </div>
+      <button class="new-reading-btn" id="new-btn" onclick="newReading()" style="display:none">✦ New Reading ✦</button>
+    </div>
+  </div>
+
+  <script>
+    let pollInterval = null;
+    let currentCategory = "";
+    let currentSpread = "";
+    let currentPageId = "";
+
+    function enterShop() {
+      document.getElementById("screen-exterior").style.display = "none";
+      document.getElementById("screen-interior").style.display = "block";
+    }
+
+    async function startReading() {
+      const category = document.getElementById("category").value;
+      const spread = document.getElementById("spread").value;
+      const errEl = document.getElementById("form-error");
+
+      if (!category || !spread) {
+        errEl.textContent = "Please choose both a focus and a spread!";
+        return;
+      }
+      errEl.textContent = "";
+      currentCategory = category;
+      currentSpread = spread;
+
+      try {
+        const res = await fetch("/api/reading", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ category, spread })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+
+        // Store the exact page ID so we poll the right entry
+        currentPageId = data.pageId;
+
+        document.getElementById("screen-interior").style.display = "none";
+        document.getElementById("screen-reading").style.display = "block";
+        document.getElementById("reading-title").textContent = "✦ " + category + " Reading ✦";
+        document.getElementById("reading-meta").textContent = category + " · " + spread;
+        startPolling();
+      } catch (e) {
+        errEl.textContent = "Error: " + e.message;
+      }
+    }
+
+    function startPolling() {
+      pollInterval = setInterval(async () => {
+        try {
+          const res = await fetch("/api/poll?pageId=" + encodeURIComponent(currentPageId));
+          const data = await res.json();
+          if (data.ready) {
+            clearInterval(pollInterval);
+            showReading(data);
+          }
+        } catch(e) {}
+      }, 5000);
+    }
+
+    function showReading(data) {
+      document.getElementById("reading-status").style.display = "none";
+      if (data.cardsDrawn) {
+        document.getElementById("cards-list").style.display = "block";
+        document.getElementById("cards-list").textContent = data.cardsDrawn;
+      }
+      document.getElementById("interpretation").style.display = "block";
+      document.getElementById("interpretation").textContent = data.interpretation || "Check Notion for your full reading!";
+      document.getElementById("new-btn").style.display = "inline-block";
+    }
+
+    function newReading() {
+      clearInterval(pollInterval);
+      document.getElementById("category").value = "";
+      document.getElementById("spread").value = "";
+      document.getElementById("reading-status").style.display = "block";
+      document.getElementById("cards-list").style.display = "none";
+      document.getElementById("interpretation").style.display = "none";
+      document.getElementById("new-btn").style.display = "none";
+      document.getElementById("screen-reading").style.display = "none";
+      document.getElementById("screen-interior").style.display = "block";
+    }
+  </script>
+
+</body>
+</html>
