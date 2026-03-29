@@ -1,6 +1,7 @@
 Video Demo: https://drive.google.com/file/d/1aYqjxnQ8-0OceaIG7WBFEr2QDuqRD388/view
 
 Live Notion Workspace: https://www.notion.so/Automated-Tarot-Card-Spread-Interpretation-31ee483094cf807e86dccf19345ace87?source=copy_link 
+
 Screenshots: https://drive.google.com/drive/folders/1hhLN6stpA13TbPVtmf8dK_2dIs_Qep8-?usp=sharing 
 
 Overview: I made tarot reading system built on Notion MCP. My gamey/pixelated website lets users select a category and spread. 
